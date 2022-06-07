@@ -2,7 +2,7 @@
 
 Super move is a terminal UI that allows you to save a lot of time when moving files between two folders
 
-![GIF Preview](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
+![GIF Preview](https://cdn.discordapp.com/attachments/495663165393207306/983855780300226640/Animation.gif)
 
 ## Installation
 
