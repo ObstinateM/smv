@@ -23,6 +23,10 @@ var (
 )
 
 func verifyFormatting(str string) string {
+	if len(str) == 0 {
+		return "/"
+	}
+
 	if str[0] != '/' {
 		str = "/" + str
 	}
@@ -79,6 +83,8 @@ func inputChangeDir(g *gocui.Gui, _ *gocui.View) error {
 		}
 
 		input.Editable = true
+		input.Title = "cd"
+		input.Subtitle = "(Enter to submit)"
 
 		if _, err = setCurrentViewOnTop(g, "Input"); err != nil {
 			return err
@@ -122,6 +128,8 @@ func createNewDir(g *gocui.Gui, _ *gocui.View) error {
 		}
 
 		input.Editable = true
+		input.Title = "mkdir"
+		input.Subtitle = "(Enter to submit)"
 
 		if _, err = setCurrentViewOnTop(g, "InputDir"); err != nil {
 			return err
@@ -245,7 +253,7 @@ func layout(g *gocui.Gui) error {
 		v.Frame = false
 		v.FgColor = gocui.ColorBlack
 		v.BgColor = gocui.ColorGreen
-		fmt.Fprintf(v, "Tab - switch view | Space - cd | ^Space - Mkdir | ArrowLeft/ArrowRight - Move file/dir | ArrowUp/Down - Move cursor | Enter - Open selected dir")
+		fmt.Fprintf(v, "Tab - switch view | Space - cd | ^N - mkdir | ArrowLeft/ArrowRight - Move file/dir | ArrowUp/Down - Move cursor | Enter - Open selected dir")
 	}
 
 	return nil
