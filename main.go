@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -112,6 +113,54 @@ func inputChangeDir(g *gocui.Gui, _ *gocui.View) error {
 	return nil
 }
 
+func createNewDir(g *gocui.Gui, _ *gocui.View) error {
+	maxX, maxY := g.Size()
+
+	if input, err := g.SetView("InputDir", maxX/2-20, maxY/2-1, maxX/2+20, maxY/2+1, 0); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+
+		input.Editable = true
+
+		if _, err = setCurrentViewOnTop(g, "InputDir"); err != nil {
+			return err
+		}
+	}
+
+	if err := g.SetKeybinding("InputDir", gocui.KeyEnter, gocui.ModNone,
+		func(g *gocui.Gui, v *gocui.View) error {
+			focusedView, err := g.SetCurrentView(viewArr[active])
+			if err != nil {
+				return err
+			}
+			result := v.ViewBuffer()
+			result = strings.TrimSpace(result)
+
+			if err := g.DeleteView("InputDir"); err != nil {
+				return err
+			}
+
+			if _, err := setCurrentViewOnTop(g, viewArr[active]); err != nil {
+				return err
+			}
+
+			// mkdir in active
+			if _, err := os.Stat(appendPath(viewDir[active], result)); errors.Is(err, os.ErrNotExist) {
+				if err := os.Mkdir(appendPath(viewDir[active], result), 0777); err != nil {
+					log.Println(err)
+				}
+			}
+			renderDir(g, focusedView, active)
+
+			return nil
+		}); err != nil {
+		log.Panicln("input dir:", err)
+	}
+
+	return nil
+}
+
 func setCurrentViewOnTop(g *gocui.Gui, name string) (*gocui.View, error) {
 	if _, err := g.SetCurrentView(name); err != nil {
 		return nil, err
@@ -196,7 +245,7 @@ func layout(g *gocui.Gui) error {
 		v.Frame = false
 		v.FgColor = gocui.ColorBlack
 		v.BgColor = gocui.ColorGreen
-		fmt.Fprintf(v, "Tab - switch view | Space - cd | ArrowLeft/ArrowRight - Move file/dir")
+		fmt.Fprintf(v, "Tab - switch view | Space - cd | ^Space - Mkdir | ArrowLeft/ArrowRight - Move file/dir | ArrowUp/Down - Move cursor | Enter - Open selected dir")
 	}
 
 	return nil
@@ -362,7 +411,15 @@ func main() {
 		log.Panicln("keybinding:", err)
 	}
 
-	if err := g.SetKeybinding("", gocui.KeySpace, gocui.ModNone, inputChangeDir); err != nil {
+	if err := g.SetKeybinding("First", gocui.KeySpace, gocui.ModNone, inputChangeDir); err != nil {
+		log.Panicln("keybinding:", err)
+	}
+
+	if err := g.SetKeybinding("Second", gocui.KeySpace, gocui.ModNone, inputChangeDir); err != nil {
+		log.Panicln("keybinding:", err)
+	}
+
+	if err := g.SetKeybinding("", gocui.KeyCtrlN, gocui.ModNone, createNewDir); err != nil {
 		log.Panicln("keybinding:", err)
 	}
 
