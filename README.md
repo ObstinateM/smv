@@ -2,6 +2,8 @@
 
 Super move is a terminal UI that allows you to save a lot of time when moving files between two folders
 
+NOTE: When the mkdir function is used, it will create a directory with the 777 permissions and it let the `umask` remove the unwanted ones.
+
 ![GIF Preview](https://cdn.discordapp.com/attachments/495663165393207306/983855780300226640/Animation.gif)
 
 ## Installation
