@@ -18,13 +18,7 @@ Download and build
   go build -o smv main.go
 ```
 
-OR Download the smv binaries from the release
-
-Then add to your .bashrc
-
-```bash
-alias smv="path/to/the/build/smv"
-```
+OR Download the smv binaries from the release and place it into /usr/local/bin/
 
 ## Contributing
 
