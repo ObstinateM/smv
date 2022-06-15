@@ -253,7 +253,7 @@ func layout(g *gocui.Gui) error {
 		v.Frame = false
 		v.FgColor = gocui.ColorBlack
 		v.BgColor = gocui.ColorGreen
-		fmt.Fprintf(v, "Tab - switch view | Space - cd | ^N - mkdir | ArrowLeft/ArrowRight - Move file/dir | ArrowUp/Down - Move cursor | Enter - Open selected dir")
+		fmt.Fprintf(v, "Tab - switch view | Space - cd | ^N - mkdir | ^D rm | ArrowLeft/ArrowRight - Move file/dir | ArrowUp/Down - Move cursor | Enter - Open selected dir")
 	}
 
 	return nil
@@ -382,6 +382,30 @@ func moveFile(g *gocui.Gui, v *gocui.View) error {
 	return nil
 }
 
+func deleteFile(g *gocui.Gui, v *gocui.View) error {
+	var l string
+	var err error
+
+	_, cy := v.Cursor()
+	if l, err = v.Line(cy); err != nil {
+		l = ""
+	}
+
+	l = strings.Replace(l, dirIcon, "", -1)
+	l = strings.Replace(l, fileIcon, "", -1)
+	l = strings.TrimSpace(l)
+
+	if l == ".." {
+		return nil
+	}
+
+	// Delete file
+	os.Remove(appendPath(viewDir[active], l))
+
+	refreshAllViews(g)
+	return nil
+}
+
 func quit(g *gocui.Gui, v *gocui.View) error {
 	return gocui.ErrQuit
 }
@@ -460,6 +484,14 @@ func main() {
 	}
 
 	if err := g.SetKeybinding("Second", gocui.KeyArrowLeft, gocui.ModNone, moveFile); err != nil {
+		log.Panicln("keybinding:", err)
+	}
+
+	if err := g.SetKeybinding("First", gocui.KeyCtrlD, gocui.ModNone, deleteFile); err != nil {
+		log.Panicln("keybinding:", err)
+	}
+
+	if err := g.SetKeybinding("Second", gocui.KeyCtrlD, gocui.ModNone, deleteFile); err != nil {
 		log.Panicln("keybinding:", err)
 	}
 
